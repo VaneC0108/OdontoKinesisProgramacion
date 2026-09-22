@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import messagebox
 
-ventana = tk.Tk()
+from menu_view import MenuPrincipal
 
 class LoginVentana:
     def __init__(self, ventana_raiz):
@@ -53,6 +53,10 @@ class LoginVentana:
             messagebox.showwarning("Atención", "Por favor ingrese su usuario y contraseña.")
         else:
             messagebox.showinfo("Acceso Correcto", f"Bienvenido/a al sistema, {usuario_ingresado}.")
+        
+        self.ventana_raiz.withdraw()
+        ventana_menu = tk.Toplevel(self.ventana_raiz)
+        MenuPrincipal(ventana_menu, usuario_ingresado, ventana_login=self.ventana_raiz)
         
 if __name__ == "__main__":
     ventana_principal = tk.Tk()

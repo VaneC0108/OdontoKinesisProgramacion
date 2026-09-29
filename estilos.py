@@ -12,12 +12,8 @@ FUENTE_BOTON = ("Segoe UI", 10, "bold")
  
  
 def boton_primario(parent, texto, comando, **kwargs):
-    """Crea un tk.Button con el mismo estilo azul que el botón de Login."""
     import tkinter as tk
-    return tk.Button(
-        parent,
-        text=texto,
-        command=comando,
+    opciones = dict(
         bg=COLOR_PRIMARIO,
         fg=COLOR_TEXTO_BOTON,
         activebackground=COLOR_PRIMARIO_HOVER,
@@ -26,4 +22,6 @@ def boton_primario(parent, texto, comando, **kwargs):
         cursor="hand2",
         padx=10,
         pady=6,
-        **kwargs)
+    )
+    opciones.update(kwargs)
+    return tk.Button(parent, text=texto, command=comando, **opciones)

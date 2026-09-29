@@ -1,8 +1,8 @@
 import tkinter as tk
-from login_view import LoginVentana
+from menu_view import MenuPrincipal
  
 if __name__ == "__main__":
     ventana_principal = tk.Tk()
-    aplicacion = LoginVentana(ventana_principal)
+    aplicacion = MenuPrincipal(ventana_principal, usuario="Invitado")
     ventana_principal.mainloop()
  

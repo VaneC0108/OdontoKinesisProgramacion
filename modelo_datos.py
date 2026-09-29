@@ -14,7 +14,7 @@ profesionales = [
  
 turnos = [
     {"id_turno": 1, "dni_paciente": "30111222", "matricula_prof": "O-2048",
-     "fecha": "2026-09-25", "hora": "10:00", "estado": "Reservado"},
+     "fecha": "25/09/2026", "hora": "10:00", "estado": "Reservado"},
 ]
  
 _ultimo_id_turno = 1

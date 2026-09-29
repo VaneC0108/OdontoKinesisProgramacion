@@ -2,8 +2,8 @@ import re
 import tkinter as tk
 from tkinter import ttk, messagebox
  
-from estilos import FUENTE_SUBTITULO, boton_primario
-import modelo_datos as datos
+from interfaz.estilos import FUENTE_SUBTITULO, boton_primario
+from acceso_datos import modelo_datos as datos
  
  
 class PacientesVentana:

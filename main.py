@@ -1,5 +1,5 @@
 import tkinter as tk
-from menu_view import MenuPrincipal
+from interfaz.menu_view import MenuPrincipal
  
 if __name__ == "__main__":
     ventana_principal = tk.Tk()

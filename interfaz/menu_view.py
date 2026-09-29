@@ -1,8 +1,8 @@
 import tkinter as tk
 from tkinter import messagebox
  
-from estilos import FUENTE_TITULO, FUENTE_SUBTITULO, boton_primario
-import modelo_datos as datos
+from interfaz.estilos import FUENTE_TITULO, FUENTE_SUBTITULO, boton_primario
+from acceso_datos import modelo_datos as datos
  
  
 class MenuPrincipal:
@@ -55,19 +55,19 @@ class MenuPrincipal:
  
     # --- Navegación a las demás pantallas --------------------------
     def abrir_pacientes(self):
-        from pacientes_view import PacientesVentana
+        from interfaz.pacientes_view import PacientesVentana
         PacientesVentana(tk.Toplevel(self.ventana))
  
     def abrir_profesionales(self):
-        from profesionales_view import ProfesionalesVentana
+        from interfaz.profesionales_view import ProfesionalesVentana
         ProfesionalesVentana(tk.Toplevel(self.ventana), al_cerrar=self._refrescar_profesionales)
  
     def abrir_turnos(self):
-        from turnos_view import TurnosVentana
+        from interfaz.turnos_view import TurnosVentana
         TurnosVentana(tk.Toplevel(self.ventana))
  
     def abrir_consultas(self):
-        from consultas_view import ConsultasVentana
+        from interfaz.consultas_view import ConsultasVentana
         ConsultasVentana(tk.Toplevel(self.ventana))
  
     def salir(self):

@@ -1,8 +1,8 @@
 import tkinter as tk
 from tkinter import ttk, simpledialog
  
-from estilos import boton_primario
-import modelo_datos as datos
+from interfaz.estilos import boton_primario
+from acceso_datos import modelo_datos as datos
  
  
 class ConsultasVentana:
@@ -45,7 +45,7 @@ class ConsultasVentana:
         )
         self.etiqueta_info.pack(fill="x", pady=(8, 0))
  
-    # --- Utilidades de presentación --------------------------------
+
     def _mostrar_turnos(self, lista, mensaje):
         self._mostrar_columnas_turno()
         self.tabla.delete(*self.tabla.get_children())
@@ -65,7 +65,7 @@ class ConsultasVentana:
         ):
             self.tabla.heading(col, text=titulo)
  
-    # --- Las 5 consultas del boceto ---------------------------------
+
     def turnos_por_fecha(self):
         fecha = simpledialog.askstring("Turnos por fecha", "Ingresá la fecha (dd/mm/aaaa):")
         if fecha is None:
@@ -100,7 +100,7 @@ class ConsultasVentana:
         self._mostrar_turnos(resultado, f"Turnos en estado {estado}")
  
     def cantidad_por_profesional(self):
-        # Esta consulta agrupa, así que cambiamos las columnas de la tabla.
+        
         conteos = {}
         for t in datos.turnos:
             conteos[t["matricula_prof"]] = conteos.get(t["matricula_prof"], 0) + 1
@@ -122,8 +122,8 @@ class ConsultasVentana:
             text=f"Cantidad de turnos por profesional — {len(conteos)} profesional(es) con turnos."
         )
  
- 
 if __name__ == "__main__":
     raiz = tk.Tk()
     ConsultasVentana(raiz)
     raiz.mainloop()
+ 

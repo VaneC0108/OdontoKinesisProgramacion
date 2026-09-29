@@ -1,4 +1,3 @@
- 
 COLOR_PRIMARIO = "#0288D1"      # azul del botón "Iniciar Sesión" (tu color real)
 COLOR_PRIMARIO_HOVER = "#026CA5"
 COLOR_TEXTO_BOTON = "#FFFFFF"
@@ -12,6 +11,7 @@ FUENTE_BOTON = ("Segoe UI", 10, "bold")
  
  
 def boton_primario(parent, texto, comando, **kwargs):
+
     import tkinter as tk
     opciones = dict(
         bg=COLOR_PRIMARIO,
@@ -25,3 +25,4 @@ def boton_primario(parent, texto, comando, **kwargs):
     )
     opciones.update(kwargs)
     return tk.Button(parent, text=texto, command=comando, **opciones)
+ 

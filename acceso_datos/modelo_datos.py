@@ -21,7 +21,6 @@ _ultimo_id_turno = 1
  
  
 def proximo_id_turno():
-    """Devuelve un id incremental simple para nuevos turnos (mock de SERIAL)."""
     global _ultimo_id_turno
     _ultimo_id_turno += 1
     return _ultimo_id_turno
@@ -29,3 +28,4 @@ def proximo_id_turno():
  
 ESTADOS_TURNO = ["Reservado", "Confirmado", "Atendido", "Cancelado"]
 ESPECIALIDADES = ["Odontología", "Kinesiología"]
+ 

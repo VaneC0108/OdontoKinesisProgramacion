@@ -2,8 +2,8 @@ import tkinter as tk
 from tkinter import ttk, messagebox
 import re
  
-from estilos import FUENTE_SUBTITULO, boton_primario
-import modelo_datos as datos
+from interfaz.estilos import FUENTE_SUBTITULO, boton_primario
+from acceso_datos import modelo_datos as datos
  
  
 class TurnosVentana:
@@ -206,7 +206,7 @@ class TurnosVentana:
         self._cargar_combos()
         self._refrescar_tabla()
  
- 
+
 if __name__ == "__main__":
     raiz = tk.Tk()
     TurnosVentana(raiz)

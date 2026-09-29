@@ -1,8 +1,8 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
  
-from estilos import FUENTE_SUBTITULO, boton_primario
-import modelo_datos as datos
+from interfaz.estilos import FUENTE_SUBTITULO, boton_primario
+from acceso_datos import modelo_datos as datos
  
  
 class ProfesionalesVentana:
@@ -172,8 +172,9 @@ class ProfesionalesVentana:
             self.al_cerrar()
         self.ventana.destroy()
  
- 
+
 if __name__ == "__main__":
     raiz = tk.Tk()
     ProfesionalesVentana(raiz)
     raiz.mainloop()
+ 

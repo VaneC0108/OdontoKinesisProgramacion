@@ -45,7 +45,7 @@ class ConsultasVentana:
         )
         self.etiqueta_info.pack(fill="x", pady=(8, 0))
  
-
+    # --- Utilidades de presentación --------------------------------
     def _mostrar_turnos(self, lista, mensaje):
         self._mostrar_columnas_turno()
         self.tabla.delete(*self.tabla.get_children())
@@ -65,12 +65,12 @@ class ConsultasVentana:
         ):
             self.tabla.heading(col, text=titulo)
  
-
+    # --- Las 5 consultas del boceto ---------------------------------
     def turnos_por_fecha(self):
         fecha = simpledialog.askstring("Turnos por fecha", "Ingresá la fecha (dd/mm/aaaa):")
         if fecha is None:
             return
-        resultado = [t for t in datos.turnos if t["fecha"] == fecha.strip()]
+        resultado = datos.obtener_turnos_por_fecha(fecha.strip())
         self._mostrar_turnos(resultado, f"Turnos en la fecha {fecha}")
  
     def turnos_por_profesional(self):
@@ -79,14 +79,14 @@ class ConsultasVentana:
         )
         if matricula is None:
             return
-        resultado = [t for t in datos.turnos if t["matricula_prof"] == matricula.strip()]
+        resultado = datos.obtener_turnos_por_profesional(matricula.strip())
         self._mostrar_turnos(resultado, f"Turnos del profesional {matricula}")
  
     def turnos_por_paciente(self):
         dni = simpledialog.askstring("Turnos por paciente", "Ingresá el DNI del paciente:")
         if dni is None:
             return
-        resultado = [t for t in datos.turnos if t["dni_paciente"] == dni.strip()]
+        resultado = datos.obtener_turnos_por_paciente(dni.strip())
         self._mostrar_turnos(resultado, f"Turnos del paciente {dni}")
  
     def turnos_por_estado(self):
@@ -96,14 +96,12 @@ class ConsultasVentana:
         )
         if estado is None:
             return
-        resultado = [t for t in datos.turnos if t["estado"].lower() == estado.strip().lower()]
+        resultado = datos.obtener_turnos_por_estado(estado.strip())
         self._mostrar_turnos(resultado, f"Turnos en estado {estado}")
  
     def cantidad_por_profesional(self):
-        
-        conteos = {}
-        for t in datos.turnos:
-            conteos[t["matricula_prof"]] = conteos.get(t["matricula_prof"], 0) + 1
+        # Esta consulta agrupa, así que cambiamos las columnas de la tabla.
+        conteos = datos.obtener_cantidad_turnos_por_profesional()
  
         self.tabla.config(columns=("matricula", "nombre_completo", "cantidad"))
         for col, titulo in zip(
@@ -114,14 +112,14 @@ class ConsultasVentana:
  
         self.tabla.delete(*self.tabla.get_children())
         for matricula, cantidad in conteos.items():
-            prof = next((p for p in datos.profesionales if p["matricula"] == matricula), None)
+            prof = datos.obtener_profesional_por_matricula(matricula)
             nombre_completo = f"{prof['nombre']} {prof['apellido']}" if prof else "(desconocido)"
             self.tabla.insert("", tk.END, values=(matricula, nombre_completo, cantidad))
  
         self.etiqueta_info.config(
             text=f"Cantidad de turnos por profesional — {len(conteos)} profesional(es) con turnos."
         )
- 
+        
 if __name__ == "__main__":
     raiz = tk.Tk()
     ConsultasVentana(raiz)

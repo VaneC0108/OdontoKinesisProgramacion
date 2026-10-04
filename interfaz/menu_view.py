@@ -46,7 +46,7 @@ class MenuPrincipal:
  
     def _refrescar_profesionales(self):
         self.lista_profesionales.delete(0, tk.END)
-        for prof in datos.profesionales:
+        for prof in datos.obtener_profesionales():
             titulo = "Lic." if prof["especialidad"] == "Kinesiología" else "Dra./Dr."
             self.lista_profesionales.insert(
                 tk.END,
@@ -77,3 +77,4 @@ class MenuPrincipal:
                 self.ventana_login.deiconify()
             else:
                 self.ventana.quit()
+ 

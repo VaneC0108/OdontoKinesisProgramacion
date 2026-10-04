@@ -76,12 +76,12 @@ class TurnosVentana:
  
     # --- Carga de combos desde pacientes/profesionales ya registrados
     def _cargar_combos(self):
-        self.combo_paciente["values"] = [p["dni"] for p in datos.pacientes]
-        self.combo_profesional["values"] = [p["matricula"] for p in datos.profesionales]
+        self.combo_paciente["values"] = [p["dni"] for p in datos.obtener_pacientes()]
+        self.combo_profesional["values"] = [p["matricula"] for p in datos.obtener_profesionales()]
  
     def _refrescar_tabla(self):
         self.tabla.delete(*self.tabla.get_children())
-        for t in datos.turnos:
+        for t in datos.obtener_turnos():
             self.tabla.insert(
                 "", tk.END,
                 values=(t["id_turno"], t["dni_paciente"], t["matricula_prof"],
@@ -128,12 +128,8 @@ class TurnosVentana:
             messagebox.showwarning("Atención", "La hora debe tener el formato hh:mm (24 hs).")
             return False
         # Regla de negocio: no dos turnos para el mismo profesional en la misma franja
-        choque = any(
-            x["matricula_prof"] == t["matricula_prof"]
-            and x["fecha"] == t["fecha"]
-            and x["hora"] == t["hora"]
-            and x["id_turno"] != ignorar_id
-            for x in datos.turnos
+        choque = datos.existe_choque_turno(
+            t["matricula_prof"], t["fecha"], t["hora"], ignorar_id=ignorar_id
         )
         if choque:
             messagebox.showwarning(
@@ -149,8 +145,7 @@ class TurnosVentana:
         t = self._leer_formulario()
         if not self._validar(t):
             return
-        t["id_turno"] = datos.proximo_id_turno()
-        datos.turnos.append(t)
+        datos.crear_turno(t)
         self._refrescar_tabla()
         self.limpiar()
         messagebox.showinfo("Éxito", "Turno guardado correctamente.")
@@ -162,11 +157,7 @@ class TurnosVentana:
         t = self._leer_formulario()
         if not self._validar(t, ignorar_id=self.id_seleccionado):
             return
-        for i, existente in enumerate(datos.turnos):
-            if existente["id_turno"] == self.id_seleccionado:
-                t["id_turno"] = self.id_seleccionado
-                datos.turnos[i] = t
-                break
+        datos.actualizar_turno(self.id_seleccionado, t)
         self._refrescar_tabla()
         self.limpiar()
         messagebox.showinfo("Éxito", "Turno modificado correctamente.")
@@ -176,7 +167,7 @@ class TurnosVentana:
             messagebox.showwarning("Atención", "Seleccioná un turno de la tabla para eliminar.")
             return
         if messagebox.askyesno("Confirmar", "¿Eliminar este turno?"):
-            datos.turnos[:] = [x for x in datos.turnos if x["id_turno"] != self.id_seleccionado]
+            datos.eliminar_turno(self.id_seleccionado)
             self._refrescar_tabla()
             self.limpiar()
  
@@ -185,7 +176,7 @@ class TurnosVentana:
         if not dni:
             messagebox.showwarning("Atención", "Seleccioná un paciente para buscar sus turnos.")
             return
-        encontrados = [x for x in datos.turnos if x["dni_paciente"] == dni]
+        encontrados = datos.obtener_turnos_por_paciente(dni)
         self.tabla.delete(*self.tabla.get_children())
         for t in encontrados:
             self.tabla.insert(
@@ -206,7 +197,6 @@ class TurnosVentana:
         self._cargar_combos()
         self._refrescar_tabla()
  
-
 if __name__ == "__main__":
     raiz = tk.Tk()
     TurnosVentana(raiz)

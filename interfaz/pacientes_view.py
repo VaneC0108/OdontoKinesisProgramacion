@@ -65,7 +65,7 @@ class PacientesVentana:
  
     def _refrescar_tabla(self):
         self.tabla.delete(*self.tabla.get_children())
-        for p in datos.pacientes:
+        for p in datos.obtener_pacientes():
             self.tabla.insert(
                 "", tk.END,
                 values=(p["dni"], p["nombre"], p["apellido"], p["telefono"], p["email"]),
@@ -121,10 +121,10 @@ class PacientesVentana:
         p = self._leer_formulario()
         if not self._validar(p):
             return
-        if any(x["dni"] == p["dni"] for x in datos.pacientes):
+        if datos.obtener_paciente_por_dni(p["dni"]) is not None:
             messagebox.showwarning("Atención", "Ya existe un paciente con ese DNI.")
             return
-        datos.pacientes.append(p)
+        datos.crear_paciente(p)
         self._refrescar_tabla()
         self.limpiar()
         messagebox.showinfo("Éxito", "Paciente guardado correctamente.")
@@ -136,10 +136,7 @@ class PacientesVentana:
         p = self._leer_formulario()
         if not self._validar(p):
             return
-        for i, existente in enumerate(datos.pacientes):
-            if existente["dni"] == self.dni_seleccionado:
-                datos.pacientes[i] = p
-                break
+        datos.actualizar_paciente(self.dni_seleccionado, p)
         self._refrescar_tabla()
         self.limpiar()
         messagebox.showinfo("Éxito", "Paciente modificado correctamente.")
@@ -149,7 +146,7 @@ class PacientesVentana:
             messagebox.showwarning("Atención", "Seleccioná un paciente de la tabla para eliminar.")
             return
         if messagebox.askyesno("Confirmar", "¿Eliminar este paciente?"):
-            datos.pacientes[:] = [x for x in datos.pacientes if x["dni"] != self.dni_seleccionado]
+            datos.eliminar_paciente(self.dni_seleccionado)
             self._refrescar_tabla()
             self.limpiar()
  
@@ -158,7 +155,7 @@ class PacientesVentana:
         if not dni:
             messagebox.showwarning("Atención", "Ingresá un DNI para buscar.")
             return
-        encontrado = next((x for x in datos.pacientes if x["dni"] == dni), None)
+        encontrado = datos.obtener_paciente_por_dni(dni)
         if encontrado is None:
             messagebox.showinfo("Búsqueda", "No se encontró ningún paciente con ese DNI.")
         else:

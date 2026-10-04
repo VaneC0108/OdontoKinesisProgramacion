@@ -72,7 +72,7 @@ class ProfesionalesVentana:
  
     def _refrescar_tabla(self):
         self.tabla.delete(*self.tabla.get_children())
-        for p in datos.profesionales:
+        for p in datos.obtener_profesionales():
             self.tabla.insert(
                 "", tk.END,
                 values=(p["matricula"], p["nombre"], p["apellido"], p["telefono"], p["especialidad"]),
@@ -112,10 +112,10 @@ class ProfesionalesVentana:
         p = self._leer_formulario()
         if not self._validar(p):
             return
-        if any(x["matricula"] == p["matricula"] for x in datos.profesionales):
+        if datos.obtener_profesional_por_matricula(p["matricula"]) is not None:
             messagebox.showwarning("Atención", "Ya existe un profesional con esa matrícula.")
             return
-        datos.profesionales.append(p)
+        datos.crear_profesional(p)
         self._refrescar_tabla()
         self.limpiar()
         messagebox.showinfo("Éxito", "Profesional guardado correctamente.")
@@ -127,10 +127,7 @@ class ProfesionalesVentana:
         p = self._leer_formulario()
         if not self._validar(p):
             return
-        for i, existente in enumerate(datos.profesionales):
-            if existente["matricula"] == self.matricula_seleccionada:
-                datos.profesionales[i] = p
-                break
+        datos.actualizar_profesional(self.matricula_seleccionada, p)
         self._refrescar_tabla()
         self.limpiar()
         messagebox.showinfo("Éxito", "Profesional modificado correctamente.")
@@ -140,9 +137,7 @@ class ProfesionalesVentana:
             messagebox.showwarning("Atención", "Seleccioná un profesional de la tabla para eliminar.")
             return
         if messagebox.askyesno("Confirmar", "¿Eliminar este profesional?"):
-            datos.profesionales[:] = [
-                x for x in datos.profesionales if x["matricula"] != self.matricula_seleccionada
-            ]
+            datos.eliminar_profesional(self.matricula_seleccionada)
             self._refrescar_tabla()
             self.limpiar()
  
@@ -151,7 +146,7 @@ class ProfesionalesVentana:
         if not matricula:
             messagebox.showwarning("Atención", "Ingresá una matrícula para buscar.")
             return
-        encontrado = next((x for x in datos.profesionales if x["matricula"] == matricula), None)
+        encontrado = datos.obtener_profesional_por_matricula(matricula)
         if encontrado is None:
             messagebox.showinfo("Búsqueda", "No se encontró ningún profesional con esa matrícula.")
         else:

@@ -1,7 +1,9 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
 import re
+from datetime import datetime
  
+from interfaz.errores_ui import mostrar_errores_bd
 from interfaz.estilos import FUENTE_SUBTITULO, boton_primario
 from acceso_datos import modelo_datos as datos
  
@@ -13,6 +15,7 @@ class TurnosVentana:
         self.ventana.geometry("720x560")
  
         self.id_seleccionado = None
+        self._fecha_hora_original = None  # (fecha, hora) del turno seleccionado
  
         contenedor = tk.Frame(self.ventana, padx=15, pady=15)
         contenedor.pack(fill="both", expand=True)
@@ -75,10 +78,12 @@ class TurnosVentana:
         self._refrescar_tabla()
  
     # --- Carga de combos desde pacientes/profesionales ya registrados
+    @mostrar_errores_bd
     def _cargar_combos(self):
         self.combo_paciente["values"] = [p["dni"] for p in datos.obtener_pacientes()]
         self.combo_profesional["values"] = [p["matricula"] for p in datos.obtener_profesionales()]
  
+    @mostrar_errores_bd
     def _refrescar_tabla(self):
         self.tabla.delete(*self.tabla.get_children())
         for t in datos.obtener_turnos():
@@ -94,6 +99,7 @@ class TurnosVentana:
             return
         id_turno, dni, matricula, fecha, hora, estado = self.tabla.item(seleccion[0], "values")
         self.id_seleccionado = int(id_turno)
+        self._fecha_hora_original = (fecha, hora)
         self.combo_paciente.set(dni)
         self.combo_profesional.set(matricula)
         self.campo_fecha.delete(0, tk.END); self.campo_fecha.insert(0, fecha)
@@ -102,7 +108,19 @@ class TurnosVentana:
  
     @staticmethod
     def _fecha_valida(fecha):
-        return re.match(r"^\d{2}/\d{2}/\d{4}$", fecha) is not None
+        # Además del formato, comprueba que la fecha exista (no vale 31/02/2026).
+        if re.match(r"^\d{2}/\d{2}/\d{4}$", fecha) is None:
+            return False
+        try:
+            datetime.strptime(fecha, "%d/%m/%Y")
+        except ValueError:
+            return False
+        return True
+ 
+    @staticmethod
+    def _es_pasado(fecha, hora):
+        """True si la fecha y hora (dd/mm/aaaa, hh:mm) ya pasaron."""
+        return datetime.strptime(f"{fecha} {hora}", "%d/%m/%Y %H:%M") < datetime.now()
  
     @staticmethod
     def _hora_valida(hora):
@@ -117,16 +135,33 @@ class TurnosVentana:
             "estado": self.combo_estado.get().strip(),
         }
  
+    @mostrar_errores_bd
     def _validar(self, t, ignorar_id=None):
         if not all(t.values()):
             messagebox.showwarning("Atención", "Todos los campos son obligatorios.")
             return False
         if not self._fecha_valida(t["fecha"]):
-            messagebox.showwarning("Atención", "La fecha debe tener el formato dd/mm/aaaa.")
+            messagebox.showwarning(
+                "Atención", "La fecha no es válida. Usá el formato dd/mm/aaaa con una fecha que exista."
+            )
             return False
         if not self._hora_valida(t["hora"]):
             messagebox.showwarning("Atención", "La hora debe tener el formato hh:mm (24 hs).")
             return False
+        # Regla de negocio: no se registran turnos en una fecha u hora que ya pasó.
+        # Al modificar, se permite dejar la fecha y hora originales (por ejemplo,
+        # para marcar como Atendido un turno de ayer), pero no moverlo al pasado.
+        if self._es_pasado(t["fecha"], t["hora"]):
+            if ignorar_id is None:
+                messagebox.showwarning(
+                    "Atención", "No se puede registrar un turno en una fecha u hora que ya pasó."
+                )
+                return False
+            if (t["fecha"], t["hora"]) != self._fecha_hora_original:
+                messagebox.showwarning(
+                    "Atención", "No se puede cambiar un turno a una fecha u hora que ya pasó."
+                )
+                return False
         # Regla de negocio: no dos turnos para el mismo profesional en la misma franja
         choque = datos.existe_choque_turno(
             t["matricula_prof"], t["fecha"], t["hora"], ignorar_id=ignorar_id
@@ -141,6 +176,7 @@ class TurnosVentana:
     def nuevo(self):
         self.limpiar()
  
+    @mostrar_errores_bd
     def guardar(self):
         t = self._leer_formulario()
         if not self._validar(t):
@@ -150,6 +186,7 @@ class TurnosVentana:
         self.limpiar()
         messagebox.showinfo("Éxito", "Turno guardado correctamente.")
  
+    @mostrar_errores_bd
     def modificar(self):
         if self.id_seleccionado is None:
             messagebox.showwarning("Atención", "Seleccioná un turno de la tabla para modificar.")
@@ -162,6 +199,7 @@ class TurnosVentana:
         self.limpiar()
         messagebox.showinfo("Éxito", "Turno modificado correctamente.")
  
+    @mostrar_errores_bd
     def eliminar(self):
         if self.id_seleccionado is None:
             messagebox.showwarning("Atención", "Seleccioná un turno de la tabla para eliminar.")
@@ -171,6 +209,7 @@ class TurnosVentana:
             self._refrescar_tabla()
             self.limpiar()
  
+    @mostrar_errores_bd
     def buscar(self):
         dni = self.combo_paciente.get().strip()
         if not dni:
@@ -189,6 +228,7 @@ class TurnosVentana:
  
     def limpiar(self):
         self.id_seleccionado = None
+        self._fecha_hora_original = None  # (fecha, hora) del turno seleccionado
         self.combo_paciente.set("")
         self.combo_profesional.set("")
         self.combo_estado.set("")
@@ -197,6 +237,7 @@ class TurnosVentana:
         self._cargar_combos()
         self._refrescar_tabla()
  
+
 if __name__ == "__main__":
     raiz = tk.Tk()
     TurnosVentana(raiz)

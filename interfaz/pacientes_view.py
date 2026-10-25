@@ -2,6 +2,7 @@ import re
 import tkinter as tk
 from tkinter import ttk, messagebox
  
+from interfaz.errores_ui import mostrar_errores_bd
 from interfaz.estilos import FUENTE_SUBTITULO, boton_primario
 from acceso_datos import modelo_datos as datos
  
@@ -63,6 +64,7 @@ class PacientesVentana:
         entry.grid(row=fila, column=1, sticky="ew", pady=4, padx=(10, 0))
         return entry
  
+    @mostrar_errores_bd
     def _refrescar_tabla(self):
         self.tabla.delete(*self.tabla.get_children())
         for p in datos.obtener_pacientes():
@@ -117,6 +119,7 @@ class PacientesVentana:
     def nuevo(self):
         self.limpiar()
  
+    @mostrar_errores_bd
     def guardar(self):
         p = self._leer_formulario()
         if not self._validar(p):
@@ -129,6 +132,7 @@ class PacientesVentana:
         self.limpiar()
         messagebox.showinfo("Éxito", "Paciente guardado correctamente.")
  
+    @mostrar_errores_bd
     def modificar(self):
         if self.dni_seleccionado is None:
             messagebox.showwarning("Atención", "Seleccioná un paciente de la tabla para modificar.")
@@ -141,6 +145,7 @@ class PacientesVentana:
         self.limpiar()
         messagebox.showinfo("Éxito", "Paciente modificado correctamente.")
  
+    @mostrar_errores_bd
     def eliminar(self):
         if self.dni_seleccionado is None:
             messagebox.showwarning("Atención", "Seleccioná un paciente de la tabla para eliminar.")
@@ -150,6 +155,7 @@ class PacientesVentana:
             self._refrescar_tabla()
             self.limpiar()
  
+    @mostrar_errores_bd
     def buscar(self):
         dni = self.campo_dni.get().strip()
         if not dni:

@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import messagebox
  
+from interfaz.errores_ui import mostrar_errores_bd
 from interfaz.estilos import FUENTE_TITULO, FUENTE_SUBTITULO, boton_primario
 from acceso_datos import modelo_datos as datos
  
@@ -44,6 +45,7 @@ class MenuPrincipal:
         self.lista_profesionales.pack(fill="both", expand=True)
         self._refrescar_profesionales()
  
+    @mostrar_errores_bd
     def _refrescar_profesionales(self):
         self.lista_profesionales.delete(0, tk.END)
         for prof in datos.obtener_profesionales():
@@ -77,4 +79,5 @@ class MenuPrincipal:
                 self.ventana_login.deiconify()
             else:
                 self.ventana.quit()
+ 
  

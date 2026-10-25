@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
  
+from interfaz.errores_ui import mostrar_errores_bd
 from interfaz.estilos import FUENTE_SUBTITULO, boton_primario
 from acceso_datos import modelo_datos as datos
  
@@ -70,6 +71,7 @@ class ProfesionalesVentana:
         combo.grid(row=fila, column=1, sticky="ew", pady=4, padx=(10, 0))
         return combo
  
+    @mostrar_errores_bd
     def _refrescar_tabla(self):
         self.tabla.delete(*self.tabla.get_children())
         for p in datos.obtener_profesionales():
@@ -108,6 +110,7 @@ class ProfesionalesVentana:
     def nuevo(self):
         self.limpiar()
  
+    @mostrar_errores_bd
     def guardar(self):
         p = self._leer_formulario()
         if not self._validar(p):
@@ -120,6 +123,7 @@ class ProfesionalesVentana:
         self.limpiar()
         messagebox.showinfo("Éxito", "Profesional guardado correctamente.")
  
+    @mostrar_errores_bd
     def modificar(self):
         if self.matricula_seleccionada is None:
             messagebox.showwarning("Atención", "Seleccioná un profesional de la tabla para modificar.")
@@ -132,6 +136,7 @@ class ProfesionalesVentana:
         self.limpiar()
         messagebox.showinfo("Éxito", "Profesional modificado correctamente.")
  
+    @mostrar_errores_bd
     def eliminar(self):
         if self.matricula_seleccionada is None:
             messagebox.showwarning("Atención", "Seleccioná un profesional de la tabla para eliminar.")
@@ -141,6 +146,7 @@ class ProfesionalesVentana:
             self._refrescar_tabla()
             self.limpiar()
  
+    @mostrar_errores_bd
     def buscar(self):
         matricula = self.campo_matricula.get().strip()
         if not matricula:
@@ -167,9 +173,7 @@ class ProfesionalesVentana:
             self.al_cerrar()
         self.ventana.destroy()
  
-
 if __name__ == "__main__":
     raiz = tk.Tk()
     ProfesionalesVentana(raiz)
     raiz.mainloop()
- 

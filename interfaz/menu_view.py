@@ -4,6 +4,7 @@ from tkinter import messagebox
 from interfaz.errores_ui import mostrar_errores_bd
 from interfaz.estilos import FUENTE_TITULO, FUENTE_SUBTITULO, boton_primario
 from acceso_datos import modelo_datos as datos
+from interfaz.reportes_view import ReportesView
  
  
 class MenuPrincipal:
@@ -33,9 +34,8 @@ class MenuPrincipal:
         boton_primario(panel_izq, "Profesional", self.abrir_profesionales).pack(fill="x", pady=6)
         boton_primario(panel_izq, "Turno", self.abrir_turnos).pack(fill="x", pady=6)
         boton_primario(panel_izq, "Consultas", self.abrir_consultas).pack(fill="x", pady=6)
-        boton_primario(panel_izq, "Salir", self.salir, bg="#B00020", activebackground="#7F0016").pack(
-            fill="x", pady=(20, 6)
-        )
+        boton_primario(panel_izq, "Reportes", lambda: ReportesView(self.ventana)).pack(fill="x", pady=(0, 6))
+        boton_primario(panel_izq, "Salir", self.salir, bg="#B00020", activebackground="#7F0016").pack(fill="x", pady=(20, 6))
  
         # --- Panel derecho: profesionales del centro ---------------
         panel_der = tk.LabelFrame(contenedor, text="Profesionales del centro", padx=10, pady=10)

@@ -107,10 +107,11 @@ class ConsultasVentana:
             if not combo.get():
                 messagebox.showwarning("Advertencia", "Por favor, elija un profesional de la lista.")
                 return
-            matricula_sel = combo.get().split(" - ")[0]
+            partes = combo.get().split(" - ")
+            matricula_sel = partes[0].strip()
             ventana_selector.destroy()
-            resultado = datos.obtener_turnos_por_profesional(matricula_sel.strip())
-            self.self_mostrar_turnos(resultado, f"Turnos del profesional {combo.get()}")
+            resultado = datos.obtener_turnos_por_profesional(matricula_sel)
+            self.mostrar_turnos(resultado, f"Turnos del profesional {combo.get()}")
             
         tk.Button(ventana_selector, text="Consultar", command=enviar_seleccion).pack(pady=10)
 
@@ -134,10 +135,11 @@ class ConsultasVentana:
             if not combo.get():
                 messagebox.showwarning("Advertencia", "Por favor, elija un paciente de la lista.")
                 return
-            dni_sel = combo.get().split(" - ")[0]
+            partes = combo.get().split(" - ")
+            dni_sel = partes[0].strip()
             ventana_selector.destroy()
-            resultado = datos.obtener_turnos_por_paciente(dni_sel.strip())
-            self.self_mostrar_turnos(resultado, f"Turnos del paciente DNI {dni_sel}")
+            resultado = datos.obtener_turnos_por_paciente(dni_sel)
+            self.mostrar_turnos(resultado, f"Turnos del paciente DNI {combo.get()}")
             
         tk.Button(ventana_selector, text="Consultar", command=enviar_seleccion).pack(pady=10)
 
@@ -208,15 +210,19 @@ class ConsultasVentana:
         
         combo = ttk.Combobox(ventana_selector, state="readonly")
         # Mostrar el formato "DNI - Apellido, Nombre"
-        combo['values'] = [f"{p} - {p}, {p}" for p in lista_pacientes]
+        combo['values'] = [f"{p[0]} - {p[1]}, {p[2]}" for p in lista_pacientes]
         combo.pack(pady=5)
         combo.current(0)
         
         def enviar_seleccion():
-            dni_sel = combo.get().split(" - ")
-            ventana_selector.destroy()
-            resultado = datos.obtener_turnos_por_paciente(dni_sel.strip())
-            self.self_mostrar_turnos(resultado, f"Turnos del paciente DNI {dni_sel}")
+         if not combo.get():
+             messagebox.showwarning("Advertencia", "Por favor, elija un paciente de la lista.")
+             return
+         partes = combo.get().split(" - ")
+         dni_sel = partes[0].strip()
+         ventana_selector.destroy()
+         resultado = datos.obtener_turnos_por_paciente(dni_sel)
+         self.mostrar_turnos(resultado, f"Turnos del paciente DNI {combo.get()}")
             
         tk.Button(ventana_selector, text="Consultar", command=enviar_seleccion).pack(pady=10)
     def turnos_por_estado(self):

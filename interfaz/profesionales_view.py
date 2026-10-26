@@ -12,7 +12,7 @@ class ProfesionalesVentana:
         self.al_cerrar = al_cerrar
         self.ventana.title("OdontoKinesis - Gestión de Profesionales")
         self.ventana.geometry("680x520")
-        self.ventana.protocol("WM_DELETE_WINDOW", self._cerrar)
+        self.ventana.protocol("WM_DELETE_WINDOW", al_cerrar)
  
         self.matricula_seleccionada = None
  

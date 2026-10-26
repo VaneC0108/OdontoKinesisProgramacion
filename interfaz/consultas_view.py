@@ -1,8 +1,8 @@
 import tkinter as tk
-from tkinter import ttk, simpledialog
- 
+from tkinter import ttk, messagebox, simpledialog
 from interfaz.estilos import boton_primario
 from acceso_datos import modelo_datos as datos
+from interfaz.errores_ui import mostrar_errores_bd
  
  
 class ConsultasVentana:
@@ -66,12 +66,102 @@ class ConsultasVentana:
             self.tabla.heading(col, text=titulo)
  
     # --- Las 5 consultas del boceto ---------------------------------
+    @mostrar_errores_bd
     def turnos_por_fecha(self):
-        fecha = simpledialog.askstring("Turnos por fecha", "Ingresá la fecha (dd/mm/aaaa):")
-        if fecha is None:
+        ventana_selector = tk.Toplevel(self.ventana)
+        ventana_selector.title("Consultar por Fecha")
+        ventana_selector.geometry("300x150")
+        
+        tk.Label(ventana_selector, text="Ingrese la fecha (dd/mm/aaaa):").pack(pady=10)
+        entrada_fecha = tk.Entry(ventana_selector)
+        entrada_fecha.pack(pady=5)
+        
+        def enviar_seleccion():
+            fecha_sel = entrada_fecha.get().strip()
+            if not fecha_sel:
+                messagebox.showwarning("Advertencia", "Debe ingresar una fecha válida.")
+                return
+            ventana_selector.destroy()
+            resultado = datos.obtener_turnos_por_fecha(fecha_sel)
+            self.self_mostrar_turnos(resultado, f"Turnos en la fecha {fecha_sel}")
+            
+        tk.Button(ventana_selector, text="Consultar", command=enviar_seleccion).pack(pady=10)
+
+    @mostrar_errores_bd
+    def turnos_por_profesional(self):
+        lista_profesionales = datos.obtener_profesionales()
+        if not lista_profesionales:
+            messagebox.showwarning("Advertencia", "No hay profesionales cargados en el sistema.")
             return
-        resultado = datos.obtener_turnos_por_fecha(fecha.strip())
-        self._mostrar_turnos(resultado, f"Turnos en la fecha {fecha}")
+            
+        ventana_selector = tk.Toplevel(self.ventana)
+        ventana_selector.title("Seleccionar Profesional")
+        ventana_selector.geometry("340x160")
+        
+        tk.Label(ventana_selector, text="Elija un profesional:").pack(pady=10)
+        combo = ttk.Combobox(ventana_selector, state="readonly")
+        combo['values'] = [f"{p} - {p}, {p}" for p in lista_profesionales]
+        combo.pack(pady=5)
+        
+        def enviar_seleccion():
+            if not combo.get():
+                messagebox.showwarning("Advertencia", "Por favor, elija un profesional de la lista.")
+                return
+            matricula_sel = combo.get().split(" - ")[0]
+            ventana_selector.destroy()
+            resultado = datos.obtener_turnos_por_profesional(matricula_sel.strip())
+            self.self_mostrar_turnos(resultado, f"Turnos del profesional {combo.get()}")
+            
+        tk.Button(ventana_selector, text="Consultar", command=enviar_seleccion).pack(pady=10)
+
+    @mostrar_errores_bd
+    def turnos_por_paciente(self):
+        lista_pacientes = datos.obtener_pacientes()
+        if not lista_pacientes:
+            messagebox.showwarning("Advertencia", "No hay pacientes cargados en el sistema.")
+            return
+            
+        ventana_selector = tk.Toplevel(self.ventana)
+        ventana_selector.title("Seleccionar Paciente")
+        ventana_selector.geometry("340x160")
+        
+        tk.Label(ventana_selector, text="Elija un paciente:").pack(pady=10)
+        combo = ttk.Combobox(ventana_selector, state="readonly")
+        combo['values'] = [f"{p} - {p}, {p}" for p in lista_pacientes]
+        combo.pack(pady=5)
+        
+        def enviar_seleccion():
+            if not combo.get():
+                messagebox.showwarning("Advertencia", "Por favor, elija un paciente de la lista.")
+                return
+            dni_sel = combo.get().split(" - ")[0]
+            ventana_selector.destroy()
+            resultado = datos.obtener_turnos_por_paciente(dni_sel.strip())
+            self.self_mostrar_turnos(resultado, f"Turnos del paciente DNI {dni_sel}")
+            
+        tk.Button(ventana_selector, text="Consultar", command=enviar_seleccion).pack(pady=10)
+
+    @mostrar_errores_bd
+    def turnos_por_estado(self):
+        ventana_selector = tk.Toplevel(self.ventana)
+        ventana_selector.title("Consultar por Estado")
+        ventana_selector.geometry("300x150")
+        
+        tk.Label(ventana_selector, text="Elija un estado de turno:").pack(pady=10)
+        combo = ttk.Combobox(ventana_selector, state="readonly")
+        combo['values'] = datos.ESTADOS_TURNO
+        combo.pack(pady=5)
+        
+        def enviar_seleccion():
+            if not combo.get():
+                messagebox.showwarning("Advertencia", "Por favor, elija un estado de la lista.")
+                return
+            estado_sel = combo.get()
+            ventana_selector.destroy()
+            resultado = datos.obtener_turnos_por_estado(estado_sel)
+            self.self_mostrar_turnos(resultado, f"Turnos con estado {estado_sel}")
+            
+        tk.Button(ventana_selector, text="Consultar", command=enviar_seleccion).pack(pady=10)
  
     def turnos_por_profesional(self):
         # Obtener la lista de profesionales desde la base de datos

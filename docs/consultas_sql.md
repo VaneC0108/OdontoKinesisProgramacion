@@ -1,43 +1,62 @@
-# Documentación de Consultas SQL - OdontoKinesis
-
-Este archivo contiene el detalle de las consultas SQL utilizadas en las distintas pantallas del sistema.
-
-## 1. Pantalla de Consultas (Consultas Simples)
-
-### A. Turnos por Fecha
-* **Qué hace:** Filtra los turnos programados para una fecha específica.
-* **Sentencia SQL:** `SELECT * FROM turno WHERE fecha = '2026-06-12';`
-
-### B. Turnos por Matrícula del Profesional
-* **Qué hace:** Muestra todos los turnos asignados a un profesional en particular.
-* **Sentencia SQL:** `SELECT * FROM turno WHERE matrícula_prof = 'MP1234';`
-
-### C. Turnos por DNI del Paciente
-* **Qué hace:** Busca el historial o los turnos de un paciente específico por su DNI.
-* **Sentencia SQL:** `SELECT * FROM turno WHERE dni_paciente = '12345678';`
-
-### D. Turnos por Estado
-* **Qué hace:** Filtra los turnos según su estado actual (por ejemplo, Confirmados).
-* **Sentencia SQL:** `SELECT * FROM turno WHERE estado = 'Confirmado';`
-
-### E. Conteo de Turnos por Profesional
-* **Qué hace:** Agrupa los turnos por matrícula para saber cuántos tiene asignados cada profesional.
-* **Sentencia SQL:** `SELECT matrícula_prof, COUNT(*) FROM turno GROUP BY matrícula_prof;`
-## 2. Módulo de Reportes
-
-### A. Turnos con Pacientes y Profesionales
-* **Qué hace:** Trae el detalle de los turnos uniendo los datos del paciente y del profesional.
-* **Sentencia SQL:** 
-`SELECT t.id_turno, t.fecha, t.hora, t.estado, p.nombre AS paciente_nombre, p.apellido AS paciente_apellido, pr.nombre AS profesional_nombre, pr.apellido AS profesional_apellido, pr.especialidad FROM turno t JOIN paciente p ON t.dni_paciente = p.dni JOIN profesional pr ON t.matrícula_prof = pr.matrícula;`
-
-### B. Reporte por Rango de Fechas
-* **Qué hace:** Filtra los turnos comprendidos entre dos fechas determinadas.
-* **Sentencia SQL:** `SELECT * FROM turno WHERE fecha BETWEEN '2026-06-01' AND '2026-06-30';`
-
-### C. Turnos por Especialidad
-* **Qué hace:** Permite filtrar los turnos según la especialidad médica del profesional.
-* **Sentencia SQL:** `SELECT t.* FROM turno t JOIN profesional pr ON t.matrícula_prof = pr.matrícula WHERE pr.especialidad = 'Kinesiología';`
-
-### D. Resumen de Turnos por Estado
-* **Qué hace:** Cuenta cuántos turnos hay agrupados por cada estado.
-* **Sentencia SQL:** `SELECT estado, COUNT(*) AS total_turnos FROM turno GROUP BY estado;`
+# Consultas SQL documentadas - OdontoKinesis
+Base de datos: MySQL, base `odontokinesis`, tablas `paciente`, `profesional` y `turno`.
+Las consultas se ejecutan desde Python con `pymysql`; los valores variables se envían como parámetros (`%s`), nunca concatenados en el texto de la sentencia.
+Los resultados de ejemplo corresponden a los datos de prueba originales de `tablas_mysql.sql`.
+> Las columnas con tilde (`matrícula`, `matrícula_prof`) van entre comillas invertidas.
+---
+## A. Consultas de la pantalla Consultas (`acceso_datos/modelo_datos.py`)
+### A.1 Turnos por fecha
+Lista los turnos de un día. En la aplicación la fecha se ingresa como dd/mm/aaaa y se convierte al tipo `DATE`.
+```sql
+SELECT id_turno, dni_paciente, `matrícula_prof`, fecha, hora, estado
+FROM turno
+WHERE fecha = '2026-06-12';
+### A.2 Turnos por profesional
+Lista los turnos asignados a un profesional, buscado por su matrícula.
+```sql
+SELECT id_turno, dni_paciente, `matrícula_prof`, fecha, hora, estado
+FROM turno
+WHERE `matrícula_prof` = 'MP1234';
+### A.3 Turnos por paciente
+Lista los turnos de un paciente, buscado por su DNI.
+```sql
+SELECT id_turno, dni_paciente, `matrícula_prof`, fecha, hora, estado
+FROM turno
+WHERE dni_paciente = '12345678';
+Resultado de ejemplo (1 fila):
+| id_turno | dni_paciente | matrícula_prof | fecha | hora | estado |
+|---|---|---|---|---|---|
+| 1 | 12345678 | MP1234 | 2026-06-10 | 10:30:00 | Confirmado |
+### A.4 Turnos por estado
+Lista los turnos que están en un estado (Reservado, Confirmado, Atendido o Cancelado), sin distinguir mayúsculas.
+```sql
+SELECT id_turno, dni_paciente, `matrícula_prof`, fecha, hora, estado
+FROM turno
+WHERE LOWER(estado) = LOWER('Confirmado');
+Resultado de ejemplo (4 filas):
+| id_turno | dni_paciente | matrícula_prof | fecha | hora | estado |
+|---|---|---|---|---|---|
+| 1 | 12345678 | MP1234 | 2026-06-10 | 10:30:00 | Confirmado |
+| 3 | 11223344 | MP9012 | 2026-06-12 | 09:00:00 | Confirmado |
+| 7 | 55667788 | MP5678 | 2026-06-15 | 10:00:00 | Confirmado |
+| 10 | 88990011 | MP7890 | 2026-06-18 | 09:30:00 | Confirmado |
+### A.5 Cantidad de turnos por profesional
+Cuenta cuántos turnos tiene cada profesional (consulta con agrupación).
+```sql
+SELECT `matrícula_prof`, COUNT(*)
+FROM turno
+GROUP BY `matrícula_prof`;
+## B. Reportes (`acceso_datos/reportes.py`)
+### B.1 Turnos con pacientes y profesionales
+Une las tres tablas (`JOIN`) para mostrar cada turno con el nombre del paciente y del profesional, en lugar de sus códigos. La fecha y la hora se formatean como en el resto de la aplicación.
+```sql
+SELECT t.id_turno,
+       CONCAT(pa.nombre, ' ', pa.apellido),
+       CONCAT(pr.nombre, ' ', pr.apellido),
+       DATE_FORMAT(t.fecha, '%d/%m/%Y'),
+       TIME_FORMAT(t.hora, '%H:%i'),
+       t.estado
+FROM turno t
+JOIN paciente pa ON t.dni_paciente = pa.dni
+JOIN profesional pr ON t.`matrícula_prof` = pr.`matrícula`
+ORDER BY t.fecha, t.hora;

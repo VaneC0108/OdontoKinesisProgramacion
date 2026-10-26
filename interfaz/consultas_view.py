@@ -74,21 +74,61 @@ class ConsultasVentana:
         self._mostrar_turnos(resultado, f"Turnos en la fecha {fecha}")
  
     def turnos_por_profesional(self):
-        matricula = simpledialog.askstring(
-            "Turnos por profesional", "Ingresá la matrícula del profesional:"
-        )
-        if matricula is None:
+        # Obtener la lista de profesionales desde la base de datos
+        lista_profesionales = datos.obtener_profesionales() # Asegúrate de que esta función exista en tu modelo de datos
+        
+        # Si no hay profesionales cargados
+        if not lista_profesionales:
             return
-        resultado = datos.obtener_turnos_por_profesional(matricula.strip())
-        self._mostrar_turnos(resultado, f"Turnos del profesional {matricula}")
- 
+            
+        # Crear una ventana secundaria para el selector
+        ventana_selector = tk.Toplevel(self.ventana)
+        ventana_selector.title("Seleccionar Profesional")
+        ventana_selector.geometry("300x150")
+        
+        tk.Label(ventana_selector, text="Elija un profesional:").pack(pady=10)
+        
+        # Crear el selector (Combobox)
+        combo = ttk.Combobox(ventana_selector, state="readonly")
+        # Mostrar el formato "Matrícula - Apellido, Nombre"
+        combo['values'] = [f"{p[0]} - {p[2]}, {p[1]}" for p in lista_profesionales]
+        combo.pack(pady=5)
+        combo.current(0)
+        
+        def enviar_seleccion():
+            # Extraer solo la matrícula (lo que está antes del guión)
+            matricula_sel = combo.get().split(" - ")[0]
+            ventana_selector.destroy()
+            resultado = datos.obtener_turnos_por_profesional(matricula_sel.strip())
+            self.self_mostrar_turnos(resultado, f"Turnos del profesional {matricula_sel}")
+            
+        tk.Button(ventana_selector, text="Consultar", command=enviar_seleccion).pack(pady=10)
     def turnos_por_paciente(self):
-        dni = simpledialog.askstring("Turnos por paciente", "Ingresá el DNI del paciente:")
-        if dni is None:
+        # Obtener la lista de pacientes desde la base de datos
+        lista_pacientes = datos.obtener_pacientes()
+        
+        if not lista_pacientes:
             return
-        resultado = datos.obtener_turnos_por_paciente(dni.strip())
-        self._mostrar_turnos(resultado, f"Turnos del paciente {dni}")
- 
+            
+        ventana_selector = tk.Toplevel(self.ventana)
+        ventana_selector.title("Seleccionar Paciente")
+        ventana_selector.geometry("300x150")
+        
+        tk.Label(ventana_selector, text="Elija un paciente:").pack(pady=10)
+        
+        combo = ttk.Combobox(ventana_selector, state="readonly")
+        # Mostrar el formato "DNI - Apellido, Nombre"
+        combo['values'] = [f"{p} - {p}, {p}" for p in lista_pacientes]
+        combo.pack(pady=5)
+        combo.current(0)
+        
+        def enviar_seleccion():
+            dni_sel = combo.get().split(" - ")
+            ventana_selector.destroy()
+            resultado = datos.obtener_turnos_por_paciente(dni_sel.strip())
+            self.self_mostrar_turnos(resultado, f"Turnos del paciente DNI {dni_sel}")
+            
+        tk.Button(ventana_selector, text="Consultar", command=enviar_seleccion).pack(pady=10)
     def turnos_por_estado(self):
         estado = simpledialog.askstring(
             "Turnos por estado",

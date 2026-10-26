@@ -2,8 +2,7 @@
 
 Este repositorio contiene la solución del sistema de gestión médica adaptado con persistencia de datos en MySQL y validaciones de interfaz de usuario en Tkinter.
 
-## Modificaciones Realizadas (Octubre 2026)
-
+## Modificaciones Realizadas (Odontokinesis)
 ### 1. Control y Gestión de Errores de Base de Datos
 * Se implementaron decoradores personalizados @mostrar_errores_bd en el módulo de consultas (consultas_view.py) para capturar de manera segura excepciones de conectividad y sintaxis de SQL, evitando la caída de la aplicación.
 

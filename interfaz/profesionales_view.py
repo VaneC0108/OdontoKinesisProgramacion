@@ -168,11 +168,29 @@ class ProfesionalesVentana:
             campo.delete(0, tk.END)
         self.combo_especialidad.set("")
  
-    def _cerrar(self):
+def _cerrar(self):
         if self.al_cerrar:
             self.al_cerrar()
         self.ventana.destroy()
  
+def _validar(self, p):
+        # 1. Validar que no haya campos vacíos
+        if not p["matricula"].strip() or not p["nombre"].strip() or not p["apellido"].strip() or not p["especialidad"].strip() or not p["telefono"].strip():
+                messagebox.showwarning("Atención", "Todos los campos son obligatorios.")
+                return False
+            
+        # 2. Validar largo del teléfono (entre 6 y 15 caracteres)
+        telefono = p["telefono"].strip()
+        if len(telefono) < 6 or len(telefono) > 15:
+                messagebox.showwarning("Atención", "El teléfono debe tener entre 6 y 15 caracteres.")
+                return False
+            
+        # 3. Validar que el teléfono contenga solo números (dígitos)
+        if not telefono.isdigit():
+                messagebox.showwarning("Atención", "El teléfono debe contener únicamente números.")
+                return False
+            
+        return True
 if __name__ == "__main__":
     raiz = tk.Tk()
     ProfesionalesVentana(raiz)

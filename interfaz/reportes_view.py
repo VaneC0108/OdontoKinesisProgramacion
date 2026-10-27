@@ -57,6 +57,9 @@ class ReportesView(tk.Toplevel):
             self.tree.heading(col, text=col)
             self.tree.column(col, width=150, anchor=tk.W)
 
+        if not filas:
+            messagebox.showinfo("Sin resultados", "No se encontraron resultados para este reporte.")
+            return
         for fila in filas:
             self.tree.insert("", tk.END, values=fila)
 

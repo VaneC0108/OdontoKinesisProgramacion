@@ -14,7 +14,7 @@ class MenuPrincipal:
         self.ventana_login = ventana_login
  
         self.ventana.title("OdontoKinesis - Sistema de Gestión")
-        self.ventana.geometry("600x430")
+        self.ventana.geometry("680x520")
         self.ventana.resizable(False, False)
         self.ventana.protocol("WM_DELETE_WINDOW", self.salir)
  
@@ -34,7 +34,7 @@ class MenuPrincipal:
         boton_primario(panel_izq, "Profesional", self.abrir_profesionales).pack(fill="x", pady=6)
         boton_primario(panel_izq, "Turno", self.abrir_turnos).pack(fill="x", pady=6)
         boton_primario(panel_izq, "Consultas", self.abrir_consultas).pack(fill="x", pady=6)
-        boton_primario(panel_izq, "Reportes", lambda: ReportesView(self.ventana)).pack(fill="x", pady=(0, 6))
+        boton_primario(panel_izq, "Reportes", lambda: ReportesView(self.ventana)).pack(fill="x", pady=6)
         boton_primario(panel_izq, "Salir", self.salir, bg="#B00020", activebackground="#7F0016").pack(fill="x", pady=(20, 6))
  
         # --- Panel derecho: profesionales del centro ---------------

@@ -11,7 +11,7 @@ class ReportesView(tk.Toplevel):
     def __init__(self, parent):
         super().__init__(parent)
         self.title("Reportes del Sistema - OdontoKinesis")
-        self.geometry("850x500")
+        self.geometry("680x520")
         
         # Título principal
         titulo = ttk.Label(self, text="Panel de Reportes Avanzados", font=("Arial", 16, "bold"))

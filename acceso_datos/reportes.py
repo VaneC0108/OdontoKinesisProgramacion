@@ -7,7 +7,7 @@ def turnos_con_nombres():
     try:
         cursor = conexion.cursor()
         cursor.execute("""
-            SELECT t.id_turno, CONCAT(pa.nombre, ' ', pa.apellido), CONCAT(pr.nombre, ' ', pr.apellido), t.fecha, t.hora, t.estado
+            SELECT t.id_turno, CONCAT(pa.nombre, ' ', pa.apellido), CONCAT(pr.nombre, ' ', pr.apellido), DATE_FORMAT(t.fecha, '%d/%m/%Y'), TIME_FORMAT(t.hora, '%H:%i'), t.estado
             FROM turno t
             JOIN paciente pa ON t.dni_paciente = pa.dni
             JOIN profesional pr ON t.`matrícula_prof` = pr.`matrícula`

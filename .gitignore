@@ -1,2 +1,16 @@
 ﻿__pycache__/
 *.pyc
+
+# Archivo de configuración local con contraseñas (NUNCA subir a GitHub)
+conexion/config.ini
+config.ini
+*.ini
+
+# Entornos virtuales (si usan venv)
+venv/
+.venv/
+env/
+
+# Configuración de editores
+.vscode/
+.idea/

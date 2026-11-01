@@ -13,6 +13,12 @@ _MENSAJES = {
     1142: "El usuario de la base de datos no tiene permiso para realizar esta operación.",
     1146: "Falta una tabla en la base de datos. Ejecutá el script tablas_mysql.sql.",
     1406: "Uno de los datos ingresados es demasiado largo para su campo.",
+    1048: "Falta completar un dato obligatorio.",
+    # MySQL usa dos códigos distintos para el mismo problema según el caso:
+    # 1217 y 1451 = se intenta borrar un registro al que otra tabla hace referencia;
+    # 1216 y 1452 = se intenta cargar un turno con un paciente o profesional que no existe.
+    1216: "El paciente o el profesional indicado no existe en la base de datos.",
+    1217: "No se puede eliminar: hay turnos asociados a este registro.",
     1451: "No se puede eliminar: hay turnos asociados a este registro.",
     1452: "El paciente o el profesional indicado no existe en la base de datos.",
     2003: "No se pudo conectar con el servidor MySQL. Verificá que esté iniciado.",

@@ -2,10 +2,14 @@
 *.pyc
 
 # Archivo de configuración local con contraseñas (NUNCA subir a GitHub)
+# Ignorar config.ini local
 conexion/config.ini
 config.ini
-*.ini
 
+# Ignorar todos los .ini excepto la plantilla de ejemplo
+*.ini
+!config.example.ini
+!conexion/config.example.ini
 # Entornos virtuales (si usan venv)
 venv/
 .venv/

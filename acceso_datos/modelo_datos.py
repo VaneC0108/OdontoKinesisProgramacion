@@ -1,7 +1,34 @@
+import functools
+ 
+import pymysql
+ 
 from conexion.conexion_bd import obtener_conexion
+from conexion.errores import ErrorBaseDeDatos, traducir_error
  
-
  
+def _con_errores(funcion):
+    """Convierte los errores de MySQL (y los datos mal formados) en un
+    ErrorBaseDeDatos con mensaje claro, que las ventanas muestran al usuario."""
+    @functools.wraps(funcion)
+    def envoltura(*args, **kwargs):
+        try:
+            return funcion(*args, **kwargs)
+        except ErrorBaseDeDatos:
+            raise
+        except pymysql.MySQLError as error:
+            raise traducir_error(error) from error
+        except ValueError as error:
+            raise ErrorBaseDeDatos(
+                "La fecha o la hora ingresada no es válida (usá dd/mm/aaaa y hh:mm)."
+            ) from error
+    return envoltura
+ 
+ 
+# =====================================================================
+# PACIENTES — ya conectado a la base real (tabla "paciente")
+# =====================================================================
+ 
+@_con_errores
 def obtener_pacientes():
     """Devuelve todos los pacientes de la base, como lista de diccionarios."""
     conexion = obtener_conexion()
@@ -20,6 +47,7 @@ def obtener_pacientes():
         conexion.close()
  
  
+@_con_errores
 def obtener_paciente_por_dni(dni):
     """Devuelve un paciente (diccionario) o None si no existe en la base."""
     conexion = obtener_conexion()
@@ -39,6 +67,7 @@ def obtener_paciente_por_dni(dni):
         conexion.close()
  
  
+@_con_errores
 def crear_paciente(paciente):
     """Inserta un paciente nuevo en la base."""
     conexion = obtener_conexion()
@@ -55,6 +84,7 @@ def crear_paciente(paciente):
         conexion.close()
  
  
+@_con_errores
 def actualizar_paciente(dni, paciente):
     """Actualiza los datos de un paciente existente (lo busca por dni)."""
     conexion = obtener_conexion()
@@ -71,6 +101,7 @@ def actualizar_paciente(dni, paciente):
         conexion.close()
  
  
+@_con_errores
 def eliminar_paciente(dni):
     """Elimina un paciente de la base, por dni."""
     conexion = obtener_conexion()
@@ -80,8 +111,13 @@ def eliminar_paciente(dni):
         conexion.commit()
     finally:
         conexion.close()
-
  
+ 
+# =====================================================================
+# PROFESIONALES — ya conectado a la base real (tabla "profesional")
+# =====================================================================
+ 
+@_con_errores
 def obtener_profesionales():
     """Devuelve todos los profesionales de la base, como lista de diccionarios."""
     conexion = obtener_conexion()
@@ -101,6 +137,7 @@ def obtener_profesionales():
         conexion.close()
  
  
+@_con_errores
 def obtener_profesional_por_matricula(matricula):
     """Devuelve un profesional (diccionario) o None si no existe."""
     conexion = obtener_conexion()
@@ -120,6 +157,7 @@ def obtener_profesional_por_matricula(matricula):
         conexion.close()
  
  
+@_con_errores
 def crear_profesional(profesional):
     """Inserta un profesional nuevo en la base."""
     conexion = obtener_conexion()
@@ -136,6 +174,7 @@ def crear_profesional(profesional):
         conexion.close()
  
  
+@_con_errores
 def actualizar_profesional(matricula, profesional):
     """Actualiza los datos de un profesional existente (lo busca por matrícula)."""
     conexion = obtener_conexion()
@@ -152,6 +191,7 @@ def actualizar_profesional(matricula, profesional):
         conexion.close()
  
  
+@_con_errores
 def eliminar_profesional(matricula):
     """Elimina un profesional de la base, por matrícula."""
     conexion = obtener_conexion()
@@ -162,6 +202,10 @@ def eliminar_profesional(matricula):
     finally:
         conexion.close()
  
+ 
+# =====================================================================
+# TURNOS — ya conectado a la base real (tabla "turno")
+# =====================================================================
  
 from datetime import datetime as _datetime, timedelta as _timedelta
  
@@ -179,6 +223,7 @@ def _texto_a_hora(texto_hhmm):
  
  
 def _hora_a_texto(hora):
+
     if isinstance(hora, _timedelta):
         total_segundos = int(hora.total_seconds())
         horas, resto = divmod(total_segundos, 3600)
@@ -187,6 +232,7 @@ def _hora_a_texto(hora):
     return hora.strftime("%H:%M")
  
  
+@_con_errores
 def obtener_turnos():
     """Devuelve todos los turnos de la base, como lista de diccionarios."""
     conexion = obtener_conexion()
@@ -206,6 +252,7 @@ def obtener_turnos():
         conexion.close()
  
  
+@_con_errores
 def obtener_turnos_por_paciente(dni):
     """Devuelve los turnos de un paciente puntual."""
     conexion = obtener_conexion()
@@ -226,6 +273,7 @@ def obtener_turnos_por_paciente(dni):
         conexion.close()
  
  
+@_con_errores
 def existe_choque_turno(matricula_prof, fecha_texto, hora_texto, ignorar_id=None):
     """True si ese profesional ya tiene un turno en esa fecha y hora exactas."""
     conexion = obtener_conexion()
@@ -250,6 +298,7 @@ def existe_choque_turno(matricula_prof, fecha_texto, hora_texto, ignorar_id=None
         conexion.close()
  
  
+@_con_errores
 def crear_turno(turno):
     """Inserta un turno nuevo en la base y devuelve el id_turno asignado.
  
@@ -272,6 +321,7 @@ def crear_turno(turno):
         conexion.close()
  
  
+@_con_errores
 def actualizar_turno(id_turno, turno):
     """Actualiza un turno existente (lo busca por id_turno)."""
     conexion = obtener_conexion()
@@ -289,6 +339,7 @@ def actualizar_turno(id_turno, turno):
         conexion.close()
  
  
+@_con_errores
 def eliminar_turno(id_turno):
     """Elimina un turno de la base, por id_turno."""
     conexion = obtener_conexion()
@@ -308,6 +359,7 @@ def _filas_a_turnos(filas):
     ]
  
  
+@_con_errores
 def obtener_turnos_por_fecha(fecha_texto):
     """Turnos en una fecha puntual (texto dd/mm/aaaa)."""
     conexion = obtener_conexion()
@@ -323,6 +375,7 @@ def obtener_turnos_por_fecha(fecha_texto):
         conexion.close()
  
  
+@_con_errores
 def obtener_turnos_por_profesional(matricula):
     """Turnos de un profesional puntual."""
     conexion = obtener_conexion()
@@ -338,6 +391,7 @@ def obtener_turnos_por_profesional(matricula):
         conexion.close()
  
  
+@_con_errores
 def obtener_turnos_por_estado(estado):
     """Turnos que están en un estado puntual (sin importar mayúsc/minúsc)."""
     conexion = obtener_conexion()
@@ -353,6 +407,7 @@ def obtener_turnos_por_estado(estado):
         conexion.close()
  
  
+@_con_errores
 def obtener_cantidad_turnos_por_profesional():
     """Devuelve {matricula: cantidad_de_turnos} para los profesionales que tienen turnos."""
     conexion = obtener_conexion()
@@ -368,4 +423,3 @@ def obtener_cantidad_turnos_por_profesional():
  
 ESTADOS_TURNO = ["Reservado", "Confirmado", "Atendido", "Cancelado"]
 ESPECIALIDADES = ["Odontología", "Kinesiología"]
- 
